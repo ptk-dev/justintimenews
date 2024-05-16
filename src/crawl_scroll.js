@@ -2,12 +2,13 @@ const axios = require("axios").default;
 const cheerio = require("cheerio");
 const fs = require("fs");
 const readline = require("readline");
+const say = require("say")
 
 let crawledURLs = new Set(
-  [...JSON.parse(fs.readFileSync("../cache/crawled_list.json", "utf8"))]
+  [...JSON.parse(fs.readFileSync("cache/crawled_list.json", "utf8"))]
 );
 let crawlList = new Set(
-  [...JSON.parse(fs.readFileSync("../cache/crawl_list.json", "utf8"))]
+  [...JSON.parse(fs.readFileSync("cache/crawl_list.json", "utf8"))]
 );
 if (crawlList.size === 0) {
   crawlList.add("https://scroll.in")
@@ -20,7 +21,7 @@ let rl = readline.createInterface({
 function registerPost(filename, post_data, $) {
   if (!post_data.content) return null
   post_data = JSON.stringify(post_data)
-  fs.writeFileSync(`../posts/unprocessed_posts/${filename}.json`, post_data, "utf8")
+  fs.writeFileSync(`posts/unprocessed_posts/${filename}.json`, post_data, "utf8")
 }
 
 const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
@@ -31,13 +32,14 @@ const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
 
   async function crawl(i) {
     if (i >= 10) {
-        console.log("Cancelled", noOfCrawl, url)
+      console.log("Cancelled", noOfCrawl, url)
       return
     }
     const res = await axios.get(url);
     const html = res.data;
     const $ = await cheerio.load(html);
     const title = await $("article h1").text();
+    $("scipt").each(e => $(e.remove()))
     const content = await $("div#article-contents.article-body").text().trim();
     const author = await $("address>a[rel=author]").text();
     const time = await $(".article-time-container>time").attr("datetime");
@@ -57,7 +59,15 @@ const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
     for (let link of links)
       if (!crawledURLs.has(link.split("#")[0].split("?")[0])) crawlList.add(link.split("#")[0].split("?")[0])
 
-    const processed_article = { title, content, author, time, image, tags };
+    const processed_article = {
+      title,
+      content,
+      author,
+      time,
+      image,
+      tags,
+      source: url
+    };
 
     registerPost(
       url.split("/")[url.split("/").length - 1],
@@ -68,7 +78,7 @@ const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
   async function crawlLoop(i = 0) {
     try {
       await crawl(i)
-    } catch {
+    } catch (e) {
       await crawlLoop(i + 1)
     }
   }
@@ -80,10 +90,11 @@ const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
   crawlList.delete(next_url)
   return await crawlScroll(next_url, noOfCrawl + 1, noOfCrawls);
 };
+
 rl.question("No. of URLs to crawl: ", (answer) => {
   rl.close()
   crawlScroll(crawlList.values().next().value, undefined, parseInt(answer)).then(() => {
-    fs.writeFileSync("../cache/crawled_list.json", JSON.stringify([...crawledURLs]), "utf8")
-    fs.writeFileSync("../cache/crawl_list.json", JSON.stringify([...crawlList]), "utf8")
-  }).then(() => process.exit(0))
+    fs.writeFileSync("cache/crawled_list.json", JSON.stringify([...crawledURLs]), "utf8")
+    fs.writeFileSync("cache/crawl_list.json", JSON.stringify([...crawlList]), "utf8")
+  }).then(() => say.speak("Crawling Done. Crawling Done. Crawling Done. Over."))
 });

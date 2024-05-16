@@ -4,7 +4,7 @@
   "description": "just-encrytping-latin",
   "main": "scripts/index.js",
   "scripts": {
-    "process": "node src/post_processor.js",
+    "process": "dotenvx run -- node src/post_processor.js",
     "crawl:scroll": "node src/crawl_scroll.js"
   },
   "keywords": [
@@ -13,10 +13,16 @@
   "author": "Ptk.",
   "license": "ISC",
   "dependencies": {
+    "@dotenvx/dotenvx": "^0.39.0",
+    "@google/generative-ai": "^0.11.2",
     "axios": "^1.6.8",
     "cheerio": "^1.0.0-rc.12",
     "clipboardy": "^4.0.0",
     "copy-paste": "^1.5.3",
+    "dotenv": "^16.4.5",
+    "js-replace-all": "^1.0.0",
+    "replaceall": "^0.1.6",
+    "say": "^0.16.0",
     "simple-web-worker": "^1.2.0",
     "vue-router": "^4.3.2",
     "ws": "^8.17.0"
