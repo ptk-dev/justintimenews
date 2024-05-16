@@ -2,9 +2,10 @@
   "name": "encryption-technique",
   "version": "1.0.0",
   "description": "just-encrytping-latin",
-  "main": "index.js",
+  "main": "scripts/index.js",
   "scripts": {
-    "test": "nodemon index.js"
+    "process": "node src/post_processor.js",
+    "crawl:scroll": "node src/crawl_scroll.js"
   },
   "keywords": [
     "just-encrypting-latin"

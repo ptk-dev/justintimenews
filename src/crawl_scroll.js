@@ -4,10 +4,10 @@ const fs = require("fs");
 const readline = require("readline");
 
 let crawledURLs = new Set(
-  [...JSON.parse(fs.readFileSync("./crawled_list.json", "utf8"))]
+  [...JSON.parse(fs.readFileSync("../cache/crawled_list.json", "utf8"))]
 );
 let crawlList = new Set(
-  [...JSON.parse(fs.readFileSync("./crawl_list.json", "utf8"))]
+  [...JSON.parse(fs.readFileSync("../cache/crawl_list.json", "utf8"))]
 );
 if (crawlList.size === 0) {
   crawlList.add("https://scroll.in")
@@ -20,7 +20,7 @@ let rl = readline.createInterface({
 function registerPost(filename, post_data, $) {
   if (!post_data.content) return null
   post_data = JSON.stringify(post_data)
-  fs.writeFileSync(`./unprocessed_posts/${filename}.json`, post_data, "utf8")
+  fs.writeFileSync(`../posts/unprocessed_posts/${filename}.json`, post_data, "utf8")
 }
 
 const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
@@ -83,7 +83,7 @@ const crawlScroll = async (url, noOfCrawl, noOfCrawls = 5) => {
 rl.question("No. of URLs to crawl: ", (answer) => {
   rl.close()
   crawlScroll(crawlList.values().next().value, undefined, parseInt(answer)).then(() => {
-    fs.writeFileSync("./crawled_list.json", JSON.stringify([...crawledURLs]), "utf8")
-    fs.writeFileSync("./crawl_list.json", JSON.stringify([...crawlList]), "utf8")
+    fs.writeFileSync("../cache/crawled_list.json", JSON.stringify([...crawledURLs]), "utf8")
+    fs.writeFileSync("../cache/crawl_list.json", JSON.stringify([...crawlList]), "utf8")
   }).then(() => process.exit(0))
 });
