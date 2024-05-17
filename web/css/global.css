@@ -1,0 +1,10 @@
+@import "../media/fonts/font.css";
+:root {
+    --font-text: "Avenir-Book", Inter, sans-serif;
+    --font-heading: "Avenir-Medium", Inter, sans-serif;
+}
+
+body, p, div {
+    font-family: var(--font-text);
+    font-size: 
+}
