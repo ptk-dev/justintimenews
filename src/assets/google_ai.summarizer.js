@@ -30,7 +30,7 @@ const safetySettings = [
     },
     {
         category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
     },
     {
         category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
@@ -38,15 +38,31 @@ const safetySettings = [
     },
 ];
 
-async function ask(question) {
-    const chatSession = model.startChat({
-        generationConfig,
-        safetySettings,
-    });
 
-    const response = await chatSession.sendMessage(question);
-    const answer = response.response.text();
-    return answer
+
+async function ask(question) {
+    try {
+        const chatSession = model.startChat({
+            generationConfig,
+            safetySettings,
+        });
+        const response = await chatSession.sendMessage(question);
+        const answer = response.response.text();
+        return {
+            error: false,
+            answer
+        }
+    } catch (e) {
+        console.log({ ...e })
+        let error = { ...e.response }
+        if (error.promptFeedback.blockReason === "other") {
+            return {
+                error: true,
+                blocked: true
+            }
+        }
+        process.exit(1)
+    }
 }
 
 module.exports = { ask }

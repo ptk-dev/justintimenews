@@ -24,6 +24,7 @@
     "replaceall": "^0.1.6",
     "say": "^0.16.0",
     "simple-web-worker": "^1.2.0",
+    "uuid": "^9.0.1",
     "vue-router": "^4.3.2",
     "ws": "^8.17.0"
   }
