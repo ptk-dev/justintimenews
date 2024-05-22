@@ -42,7 +42,6 @@ async function summarize(i = [], max_limit = null, _i = 0) {
         return o
     }
     let post = i.pop()
-    console.log("Processing", _i + 1, post.filepath)
     let content = post.content
     content = `"${content}", rewrite it in human manner, optimize it for seo, reply under 150 words, emphasize main words, write in small paras, provide important insights in interesting manner, include long tail keywords in it, try not to include plagarism content, it's title currently is "${post.title}", give it a eye-catchy attarctive title which includes taget keywords to increase conversion rate title should be in more than 10 words and less then 25 words`
     let response = (await ask(content))
@@ -59,6 +58,15 @@ async function summarize(i = [], max_limit = null, _i = 0) {
         o.push({ title, content: new_content, tags: post.tags, source: post.source, author: post.author, time: post.time, image: post.image, id })
         writeFileSync(join(__dirname, "../posts/processed_posts", `${stringToFilename(title)}.json`), JSON.stringify(o[0]), "utf-8")
         unlinkSync(post.filepath)
+        console.log("🟢 Processed", _i + 1, post.filepath)
+    } else if (response.blocked) {
+        writeFileSync(join(__dirname, "../posts/blocked_posts", `${stringToFilename(title)}.json`), JSON.stringify(o[0]), "utf-8")
+        unlinkSync(post.filepath)
+        console.log("🔴 Processed", _i + 1, post.filepath)
+    } else if (response.unknown) {
+        console.log("❌ Error :", post.filepath)
+        say.speak("Ran in Error. Ran in Error. Ran in Error. Over.")
+        process.exit(1)
     }
     return summarize(i, max_limit, _i + 1)
 }
@@ -69,12 +77,20 @@ const rl = readline.createInterface({
 })
 
 rl.question("How many posts you need to process? (just press Enter without entering any number to process as much posts available) ", async (answer) => {
-    if (!answer) {
-        await summarize(unprocessed_posts)
-    } else {
-        await summarize(unprocessed_posts, parseInt(answer))
+    try {
+        if (typeof parseInt(answer) === "number") {
+            if (!answer) {
+                await summarize(unprocessed_posts)
+            } else {
+                await summarize(unprocessed_posts,)
+            }
+            say.speak("Processing Done. Processing Done. Processing Done. Over.")
+            console.log("Done ✅")
+        } else {
+            throw new Error("")
+        }
+    } catch {
+        console.log("Bad Entry.")
     }
-    say.speak("Processing Done. Processing Done. Processing Done. Over.")
-    console.log("Done ✅")
     rl.close()
 })

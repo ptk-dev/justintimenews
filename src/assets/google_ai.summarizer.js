@@ -46,6 +46,7 @@ async function ask(question) {
             generationConfig,
             safetySettings,
         });
+        console.log(question)
         const response = await chatSession.sendMessage(question);
         const answer = response.response.text();
         return {
@@ -53,15 +54,24 @@ async function ask(question) {
             answer
         }
     } catch (e) {
-        console.log({ ...e })
         let error = { ...e.response }
-        if (error.promptFeedback.blockReason === "other") {
+        console.log(e)
+        console.log(
+            error.promptFeedback.blockReason.toLowerCase(),
+            error.promptFeedback.blockReason.toLowerCase() === "other"
+        )
+
+        if (error.promptFeedback.blockReason.toLowerCase() === "other") {
             return {
                 error: true,
                 blocked: true
             }
+        } else {
+            return {
+                error: true,
+                unknown: true
+            }
         }
-        process.exit(1)
     }
 }
 
