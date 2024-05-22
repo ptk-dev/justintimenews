@@ -1,12 +1,11 @@
-import asyncio
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.summarizers.edmundson import EdmundsonSummarizer
-from simple_websocket import AioClient, ConnectionClosed
 from flask import Flask, jsonify, request
+import requests
 
 
-def ask(article):
+def ask(article, sen):
     parser = PlaintextParser.from_string(article, Tokenizer("english"))
 
     edmundson_summarizer = EdmundsonSummarizer()
@@ -16,7 +15,7 @@ def ask(article):
 
     edmundson_summary = edmundson_summarizer(
         parser.document,
-        sentences_count=2
+        sentences_count=sen
     )
     result = ""
     for sentence in edmundson_summary:
@@ -28,12 +27,12 @@ app = Flask(__name__)
 
 
 @app.route("/ask", methods=['POST'])
-def ask():
+def ask_page():
     data = request.get_json()
-    print(data)
-    question = data.get('question')
-    return jsonify({'answer': ask(question)})
+    article = data.get('article')
+    return jsonify({'quick_report': ask(article, 1), 'detailed_report': ask(article, 5)})
 
+active=requests.post("http://localhost:3333")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run()
