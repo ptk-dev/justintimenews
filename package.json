@@ -20,6 +20,7 @@
     "clipboardy": "^4.0.0",
     "copy-paste": "^1.5.3",
     "dotenv": "^16.4.5",
+    "fast-xml-parser": "^4.4.0",
     "js-replace-all": "^1.0.0",
     "replaceall": "^0.1.6",
     "say": "^0.16.0",
